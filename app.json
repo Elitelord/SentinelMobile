@@ -1,0 +1,74 @@
+{
+  "expo": {
+    "name": "Sentinel",
+    "slug": "sentinel-mobile",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "sentinel",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.sentinel.mobile",
+      "infoPlist": {
+        "NSHealthShareUsageDescription": "Sentinel reads your heart rate, blood oxygen, respiratory rate, and other vitals so your care team can spot signs of post-operative deterioration early.",
+        "NSHealthUpdateUsageDescription": "Sentinel does not write to Health. This permission is required by the system but unused.",
+        "UIBackgroundModes": ["fetch", "processing"]
+      },
+      "entitlements": {
+        "com.apple.developer.healthkit": true,
+        "com.apple.developer.healthkit.background-delivery": true
+      }
+    },
+    "android": {
+      "package": "com.sentinel.mobile",
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff"
+      },
+      "permissions": [
+        "android.permission.health.READ_HEART_RATE",
+        "android.permission.health.READ_OXYGEN_SATURATION",
+        "android.permission.health.READ_RESPIRATORY_RATE",
+        "android.permission.health.READ_BODY_TEMPERATURE",
+        "android.permission.health.READ_STEPS",
+        "android.permission.health.READ_SLEEP",
+        "android.permission.health.READ_HEART_RATE_VARIABILITY",
+        "android.permission.ACTIVITY_RECOGNITION",
+        "android.permission.CAMERA"
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": [{ "scheme": "sentinel" }],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Sentinel uses the camera to scan the pairing QR code from your care team."
+        }
+      ],
+      [
+        "react-native-health",
+        {
+          "isClinicalDataEnabled": false,
+          "healthSharePermission": "Sentinel reads your vitals to support post-op monitoring.",
+          "healthUpdatePermission": "Sentinel does not write to Health."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      }
+    }
+  }
+}
