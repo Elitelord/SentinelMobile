@@ -11,7 +11,9 @@ function requireEnv(name: string, value: string | undefined): string {
 }
 
 export const config = {
-  apiUrl: requireEnv('EXPO_PUBLIC_API_URL', process.env.EXPO_PUBLIC_API_URL),
+  get apiUrl(): string {
+    return requireEnv('EXPO_PUBLIC_API_URL', process.env.EXPO_PUBLIC_API_URL);
+  },
   appVersion: process.env.EXPO_PUBLIC_APP_VERSION ?? '0.1.0',
   platform: Platform.OS as 'ios' | 'android',
   deviceModel: Constants.deviceName ?? 'unknown',
@@ -22,6 +24,6 @@ export const config = {
   maxSamplesPerBatch: 1000,
   // How far back to look for samples on each sync if no cursor exists yet.
   initialLookbackMinutes: 15,
-} as const;
+};
 
 export const BACKGROUND_SYNC_TASK = 'sentinel.background-sync';
