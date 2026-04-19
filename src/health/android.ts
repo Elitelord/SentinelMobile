@@ -48,7 +48,10 @@ export const androidAdapter: HealthAdapter = {
     if (!ok) return false;
     try {
       const granted = await requestPermission(SCOPES);
-      return granted.length === SCOPES.length;
+      // Accept partial grants — Health Connect may not return all requested
+      // permissions even when "Allow all" is tapped (e.g. unsupported types
+      // on older devices). Require at least heart_rate so sync is useful.
+      return granted.length > 0;
     } catch {
       return false;
     }
@@ -59,7 +62,9 @@ export const androidAdapter: HealthAdapter = {
     if (!ok) return false;
     try {
       const granted = await getGrantedPermissions();
-      return SCOPES.every((s) =>
+      // Mirror the partial-grant policy in requestPermissions(): any read
+      // permission for a SCOPE record type is enough to make sync useful.
+      return SCOPES.some((s) =>
         granted.some(
           (g) => g.recordType === s.recordType && g.accessType === s.accessType,
         ),

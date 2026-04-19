@@ -13,7 +13,10 @@
       "infoPlist": {
         "NSHealthShareUsageDescription": "Sentinel reads your heart rate, blood oxygen, respiratory rate, and other vitals so your care team can spot signs of post-operative deterioration early.",
         "NSHealthUpdateUsageDescription": "Sentinel does not write to Health. This permission is required by the system but unused.",
-        "UIBackgroundModes": ["fetch", "processing"]
+        "UIBackgroundModes": [
+          "fetch",
+          "processing"
+        ]
       },
       "entitlements": {
         "com.apple.developer.healthkit": true,
@@ -39,14 +42,30 @@
       "intentFilters": [
         {
           "action": "VIEW",
-          "data": [{ "scheme": "sentinel" }],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "data": [
+            {
+              "scheme": "sentinel"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
     "plugins": [
       "expo-router",
       "expo-secure-store",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "minSdkVersion": 26,
+            "kotlinVersion": "1.9.25"
+          }
+        }
+      ],
       [
         "expo-camera",
         {
@@ -60,7 +79,10 @@
           "healthSharePermission": "Sentinel reads your vitals to support post-op monitoring.",
           "healthUpdatePermission": "Sentinel does not write to Health."
         }
-      ]
+      ],
+      "react-native-health-connect",
+      "./plugins/with-health-connect-delegate.js",
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true

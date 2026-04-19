@@ -77,31 +77,48 @@ export async function postVitalsBatch(
   }
 
   if (res.status === 401) {
-    const json = (await res.json().catch(() => ({}))) as { error?: AuthErrorCode };
+    const error = await readErrorCode(res);
     const code: AuthErrorCode =
-      json.error === 'device_revoked' || json.error === 'malformed_token'
-        ? json.error
+      error === 'device_revoked' || error === 'malformed_token'
+        ? error
         : 'invalid_token';
     return { ok: false, kind: 'auth', code };
   }
 
   if (res.status === 429) {
     const retryAfterHeader = res.headers.get('Retry-After');
-    const json = (await res.json().catch(() => ({}))) as { retry_after_s?: number };
+    const json = (await res.json().catch(() => ({}))) as {
+      retry_after_s?: number;
+      detail?: { retry_after_s?: number };
+    };
     const retryAfterSeconds =
-      json.retry_after_s ?? (retryAfterHeader ? parseInt(retryAfterHeader, 10) : 60);
+      json.detail?.retry_after_s ??
+      json.retry_after_s ??
+      (retryAfterHeader ? parseInt(retryAfterHeader, 10) : 60);
     return { ok: false, kind: 'rate_limited', retryAfterSeconds };
   }
 
   if (res.status === 413) return { ok: false, kind: 'too_large' };
 
   if (res.status === 400) {
-    const json = (await res.json().catch(() => ({}))) as { error?: string };
-    if (json.error === 'clock_in_future') return { ok: false, kind: 'clock_in_future' };
-    if (json.error === 'mismatched_batch_id') return { ok: false, kind: 'mismatched_batch_id' };
+    const error = await readErrorCode(res);
+    if (error === 'clock_in_future') return { ok: false, kind: 'clock_in_future' };
+    if (error === 'mismatched_batch_id') return { ok: false, kind: 'mismatched_batch_id' };
     return { ok: false, kind: 'schema_invalid' };
   }
 
   const text = await res.text().catch(() => '');
   return { ok: false, kind: 'server', status: res.status, message: text };
+}
+
+// Backend wraps errors via FastAPI HTTPException as { detail: { error: "..." } }.
+// Older/local responses may return a flat { error: "..." }, so accept either.
+async function readErrorCode(res: Response): Promise<string | undefined> {
+  const json = (await res.json().catch(() => ({}))) as {
+    error?: string;
+    detail?: string | { error?: string };
+  };
+  if (typeof json.detail === 'object' && json.detail?.error) return json.detail.error;
+  if (typeof json.detail === 'string') return json.detail;
+  return json.error;
 }
